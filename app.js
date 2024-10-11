@@ -164,18 +164,22 @@ io.on("connection",(socket)=>
        try{
         if(token)
             {
+             
              const isvalid= jwt.verify(token,secret_key)
+             
             if(isvalid)
             {
              const id=isvalid.id
+             const status="online"
              socket.join(id)
-            //  console.log([...socket.rooms]);
+             socket.emit("online",status)
+             console.log([...socket.rooms]);
             }
      
             }
        }catch(err)
        {
-          console.log("user offline")
+         socket.emit("offline","offline")
        }
        
     })

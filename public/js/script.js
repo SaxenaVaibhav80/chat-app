@@ -13,6 +13,16 @@ fetch('/login/api', {
       console.error('Error fetching token:', error);
   });
 
+
+  socket.on("online",(status)=>
+{
+    console.log("user is "+status)
+})
+
+socket.on("offline",(data)=>
+{
+    console.log("user is "+data)
+})
  
 
 
