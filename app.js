@@ -92,13 +92,7 @@ const checkLoginState = (req, res, next) => {
             jwt.verify(token, secret_key); 
             loggedIn = true; 
         } catch (err) {
-            if (err.name === 'TokenExpiredError') {
-                console.log("Token expired. Redirecting to login.");
-                res.redirect("/login"); 
-            } else {
-                console.log("Invalid or malformed token:", err.message);
-                res.redirect("/login"); 
-            }
+            res.redirect("/login"); 
         }
     }
     res.locals.loggedIn = loggedIn;
@@ -139,9 +133,31 @@ app.post("/login",async(req,res)=>
 })
 
 
-app.get("/",checkLoginState,(req,res)=>
+app.get("/",checkLoginState,async(req,res)=>
 {  
-    res.render("home")
+    const token = req.cookies.token
+   
+    try{
+        
+         if(token)
+         {   
+            verification = jwt.verify(token,secret_key)
+            if(verification)
+            {
+                const users = await userModel.find(); 
+                res.render("home",{user:users})
+            }
+         }
+         else{
+            res.render("home")
+         }
+         
+
+    }catch(err)
+    {
+      res.render("home")
+    }
+    
 })
 
 
@@ -161,8 +177,9 @@ io.on("connection",(socket)=>
 {
     socket.on("token",(token)=>
     {  
+        
        try{
-        if(token)
+        if(token!="undefined")
             {
              
              const isvalid= jwt.verify(token,secret_key)
@@ -178,7 +195,7 @@ io.on("connection",(socket)=>
      
             }
        }catch(err)
-       {
+       { 
          socket.emit("offline","offline")
        }
        

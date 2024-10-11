@@ -19,6 +19,17 @@
     </nav>
 
 
+    <div>
+        <% if(loggedIn) {%>
+            <% user.forEach((data)=> { %>
+                <li><%=data.firstname+"  "+data.lastname%></li>
+             <%})%>
+
+        <%}%>
+        
+    </div>
+
+
 <script src="/js/script.js"></script>
 </body>
 </html>
