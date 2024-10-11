@@ -24,9 +24,35 @@ socket.on("offline",(data)=>
     console.log("user is "+data)
 })
  
+const userListItems = document.querySelectorAll('li[data-id]');
+let selectedUserId = null;
+
+userListItems.forEach(item => {
+    item.addEventListener('click', () => {
+        selectedUserId = item.getAttribute('data-id'); 
+        console.log(`User selected: ${selectedUserId}`);
+    });
+});
 
 
 
+const messageInput = document.getElementById('message-input');
+const sendMessageButton = document.getElementById('send-message-button');
 
+sendMessageButton.addEventListener('click', () => {
+    const message = messageInput.value;
 
- 
+  
+    if (selectedUserId && message) {
+       
+        socket.emit('sendMessageToUser', { userId: selectedUserId, message });
+        messageInput.value = ''; 
+    } else {
+        alert('Please select a user and type a message');
+    }
+});
+
+socket.on("receiveMessage",(data)=>
+{
+    console.log(data)
+})

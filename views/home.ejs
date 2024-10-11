@@ -18,16 +18,24 @@
         
     </nav>
 
-
-    <div>
-        <% if(loggedIn) {%>
-            <% user.forEach((data)=> { %>
-                <li><%=data.firstname+"  "+data.lastname%></li>
-             <%})%>
-
-        <%}%>
-        
+    <div class="msg-area">
+        <div>
+            <% if(loggedIn) {%>
+                <% user.forEach((data)=> { %>
+                    <li data-id="<%=data._id%>"><%=data.firstname+"  "+data.lastname%></li>
+                 <%})%>
+    
+            <%}%>
+            
+        </div>
+        <div>
+            <% if(loggedIn) {%>
+            <input type="text" id="message-input" placeholder="Type your message here" />
+            <button id="send-message-button">Send Message</button>
+            <%}%>
+        </div>
     </div>
+    
 
 
 <script src="/js/script.js"></script>

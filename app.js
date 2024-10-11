@@ -177,6 +177,13 @@ io.on("connection",(socket)=>
 {
     socket.on("token",(token)=>
     {  
+
+        socket.on('sendMessageToUser', ({ userId, message }) => {
+            if (userId && message) {
+                io.to(userId).emit('receiveMessage', message);
+                console.log(`Message sent to user with ID ${userId}: ${message}`);
+            }
+        });
         
        try{
         if(token!="undefined")
