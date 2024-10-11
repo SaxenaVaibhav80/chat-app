@@ -17,28 +17,28 @@ const ejs= require("ejs")
 const db = require("./config/config")
 const userModel=require("./models/user");
 const urlencoded = require("body-parser/lib/types/urlencoded");
+const json = require("body-parser/lib/types/json");
 app.set("view engine","ejs")
 app.use(express.static('public'))
 
-
-const isauth=(req,res,next)=>
-{
-  const token =req.cookies.token
-  try{
-    if(token)
-        {
-        const verification =jwt.verify(token,secret_key)
-          next()
+const  auth =(req,res,next)=>
+    {
+        const tokenFromCookie= req.cookies.token
+        try{
+            if(tokenFromCookie)
+            {
+                const verification =jwt.verify(tokenFromCookie,secret_key)
+                next()
+            }
+            else{
+                res.redirect("/")
+            }
+        }catch(err){
+            res.redirect("/")
         }
-    else{
-        console.log("not logged in")
+    
     }
-  }catch(err)
-  {
-    res.status(404).send("token tampered")
-  }
-  
-}
+    
 app.post("/signup",async(req,res)=>
 {
  const fname= req.body.fname
@@ -68,6 +68,44 @@ app.post("/signup",async(req,res)=>
  res.redirect("/")
 })
 
+
+app.post("/login/api",(req,res)=>
+{
+    const token = req.cookies.token
+    if(token)
+    {   
+        return res.status(200).json({ token });
+    }
+    else{
+        return res.status(200).json({undefined})    
+    }
+    
+})
+
+
+const checkLoginState = (req, res, next) => {
+    const token = req.cookies.token;
+    let loggedIn = false;
+
+    if (token) {
+        try {
+            jwt.verify(token, secret_key); 
+            loggedIn = true; 
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                console.log("Token expired. Redirecting to login.");
+                res.redirect("/login"); 
+            } else {
+                console.log("Invalid or malformed token:", err.message);
+                res.redirect("/login"); 
+            }
+        }
+    }
+    res.locals.loggedIn = loggedIn;
+
+    next();
+};
+
 app.post("/login",async(req,res)=>
 {
     const email= req.body.email
@@ -84,12 +122,10 @@ app.post("/login",async(req,res)=>
                  expiresIn:'24h'
                 }
             )
-
             const options={
                 expires:new Date(Date.now()+24*60*60*1000),
                 httpOnly:true
             };
-    
             res.status(200).cookie("token",token,options)
             res.redirect("/")
         }
@@ -101,21 +137,50 @@ app.post("/login",async(req,res)=>
         res.status(400).send("user not  Available")
     }
 })
-app.get("/",(req,res)=>
-{
+
+
+app.get("/",checkLoginState,(req,res)=>
+{  
     res.render("home")
 })
+
+
 app.get("/login",(req,res)=>
 {
     res.render("login")
 })
+
+
 app.get("/signup",(req,res)=>
 {
     res.render("signup")
 })
+
+
 io.on("connection",(socket)=>
 {
-    console.log("users connected...")
+    socket.on("token",(token)=>
+    {  
+       try{
+        if(token)
+            {
+             const isvalid= jwt.verify(token,secret_key)
+            if(isvalid)
+            {
+             const id=isvalid.id
+             socket.join(id)
+            //  console.log([...socket.rooms]);
+            }
+     
+            }
+       }catch(err)
+       {
+          console.log("user offline")
+       }
+       
+    })
+   
+    
 })
 
 
