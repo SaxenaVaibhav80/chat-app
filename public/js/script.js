@@ -23,7 +23,8 @@ socket.on("offline",(data)=>
 {
     console.log("user is "+data)
 })
- 
+
+
 const userListItems = document.querySelectorAll('li[data-id]');
 let selectedUserId = null;
 
@@ -33,7 +34,6 @@ userListItems.forEach(item => {
         console.log(`User selected: ${selectedUserId}`);
     });
 });
-
 
 
 const messageInput = document.getElementById('message-input');
@@ -46,13 +46,23 @@ sendMessageButton.addEventListener('click', () => {
     if (selectedUserId && message) {
        
         socket.emit('sendMessageToUser', { userId: selectedUserId, message });
+        const messageElement = document.createElement('h3');
+        const messageBox = document.getElementById("msg-box")
+        messageElement.textContent = `You : ${message}`;  
+        messageBox.appendChild(messageElement); 
         messageInput.value = ''; 
     } else {
         alert('Please select a user and type a message');
     }
+    
 });
 
+
 socket.on("receiveMessage",(data)=>
-{
-    console.log(data)
-})
+    {   const messageBox = document.getElementById("msg-box")
+        const messageElement = document.createElement('h3');
+        messageElement.textContent = `user : ${data}`; 
+        messageBox.appendChild(messageElement); 
+    })
+
+

@@ -17,19 +17,23 @@
         <%}%>
         
     </nav>
-
+    <h1 id="head">chat app</h1>
     <div class="msg-area">
         <div>
             <% if(loggedIn) {%>
                 <% user.forEach((data)=> { %>
+                    <% if(data._id!=id){ %>
                     <li data-id="<%=data._id%>"><%=data.firstname+"  "+data.lastname%></li>
+                    <%}%>
                  <%})%>
-    
             <%}%>
             
         </div>
         <div>
             <% if(loggedIn) {%>
+            <div id="msg-box">
+    
+            </div>
             <input type="text" id="message-input" placeholder="Type your message here" />
             <button id="send-message-button">Send Message</button>
             <%}%>

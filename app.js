@@ -9,6 +9,7 @@ const jwt= require("jsonwebtoken")
 const cookieparser = require("cookie-parser")
 app.use(cookieparser());
 app.use(bodyParser.urlencoded({extended:true}))
+const chatModel = require("./models/chat")
 const server = http.createServer(app)
 const socketio=require('socket.io');
 const io=socketio(server)
@@ -63,7 +64,14 @@ app.post("/signup",async(req,res)=>
         password:encpass,
         email:email
     })
+
+    const id= user._id
+    const newMessage = chatModel.create({
+        senderId: id, 
+        roomId: id
+    });
  }
+    
 
  res.redirect("/")
 })
@@ -105,9 +113,10 @@ app.post("/login",async(req,res)=>
     const email= req.body.email
     const password= req.body.password
     const user = await userModel.findOne({email:email})
-    const passverify= await bcrypt.compare(password,user.password)
+    
     if(user)
     {
+        const passverify= await bcrypt.compare(password,user.password)
         if(passverify){
             const token = jwt.sign(
                 {id:user._id},
@@ -145,7 +154,7 @@ app.get("/",checkLoginState,async(req,res)=>
             if(verification)
             {
                 const users = await userModel.find(); 
-                res.render("home",{user:users})
+                res.render("home",{user:users,id:verification.id})
             }
          }
          else{
@@ -177,13 +186,7 @@ io.on("connection",(socket)=>
 {
     socket.on("token",(token)=>
     {  
-
-        socket.on('sendMessageToUser', ({ userId, message }) => {
-            if (userId && message) {
-                io.to(userId).emit('receiveMessage', message);
-                console.log(`Message sent to user with ID ${userId}: ${message}`);
-            }
-        });
+       
         
        try{
         if(token!="undefined")
@@ -198,6 +201,15 @@ io.on("connection",(socket)=>
              socket.join(id)
              socket.emit("online",status)
              console.log([...socket.rooms]);
+
+             socket.on('sendMessageToUser', async({ userId, message }) => {
+                console.log(id)
+                 if (userId && message) {
+                    io.to(userId).emit('receiveMessage', message);
+                    const user = await chatModel.find({senderId:id})
+                  
+                 }
+             });
             }
      
             }
