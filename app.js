@@ -64,12 +64,7 @@ app.post("/signup",async(req,res)=>
         password:encpass,
         email:email
     })
-
-    const id= user._id
-    const newMessage = chatModel.create({
-        senderId: id, 
-        roomId: id
-    });
+  
  }
     
 
@@ -184,7 +179,7 @@ app.get("/signup",(req,res)=>
 
 io.on("connection",(socket)=>
 {
-    socket.on("token",(token)=>
+    socket.on("token",async(token)=>
     {  
        
         
@@ -200,13 +195,32 @@ io.on("connection",(socket)=>
              const status="online"
              socket.join(id)
              socket.emit("online",status)
-             console.log([...socket.rooms]);
+            //  console.log([...socket.rooms]);
 
              socket.on('sendMessageToUser', async({ userId, message }) => {
-                console.log(id)
+               
                  if (userId && message) {
-                    io.to(userId).emit('receiveMessage', message);
-                    const user = await chatModel.find({senderId:id})
+                    socket.to(userId).emit('receiveMessage', message);
+                    // console.log({id,userId})
+                    const chat = await chatModel.findOne({
+                        senderId: id,
+                        receiverId: userId
+                    });
+                    if(chat)
+                    {
+                        chat.message.push(message);
+                        chat.timestamp = Date.now();
+                        await chat.save();
+
+                    }else{
+                        await chatModel.create({
+                            senderId:id,
+                            receiverId:userId,
+                            message:[message],
+                            roomId:id
+                        })
+                    }
+                    
                   
                  }
              });

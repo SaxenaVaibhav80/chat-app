@@ -111,3 +111,6 @@
     display: flex;
     justify-content: space-between;
 }
+.users{
+    cursor: pointer;
+}

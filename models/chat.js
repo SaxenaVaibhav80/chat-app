@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const chatModel = new mongoose.Schema({
     senderId:String,
     receiverId:{
-        Type:String,
+        type:String,
     },
     message: [{
         type: String,                           
