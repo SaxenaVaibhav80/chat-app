@@ -177,67 +177,76 @@ app.get("/signup",(req,res)=>
 })
 
 
-io.on("connection",(socket)=>
-{
-    socket.on("token",async(token)=>
-    {  
-       
-        
-       try{
-        if(token!="undefined")
-            {
-             
-             const isvalid= jwt.verify(token,secret_key)
-             
-            if(isvalid)
-            {
-             const id=isvalid.id
-             const status="online"
-             socket.join(id)
-             socket.emit("online",status)
-            //  console.log([...socket.rooms]);
-
-             socket.on('sendMessageToUser', async({ userId, message }) => {
-               
-                 if (userId && message) {
-                    socket.to(userId).emit('receiveMessage', message);
-                    // console.log({id,userId})
-                    const chat = await chatModel.findOne({
+io.on("connection", (socket) => {
+    socket.on("token", async (token) => {
+      try {
+        if (token != "undefined") {
+          const isvalid = jwt.verify(token, secret_key);
+  
+          if (isvalid) {
+            const id = isvalid.id;
+            const status = "online";
+            socket.join(id);
+            socket.emit("online", status);
+  
+            socket.on("sendMessageToUser", async ({ userId, message }) => {
+              if (userId && message) {
+                let chat = await chatModel.findOne({
+                  $or: [
+                    { senderId: id, receiverId: userId },
+                    { senderId: userId, receiverId: id }
+                  ]
+                });
+  
+                if (chat) {
+                  chat.message.push({
+                    senderId: id,
+                    receiverId: userId,
+                    text: message,
+                    timestamp: Date.now()
+                  });
+                  await chat.save();
+                } else {
+                  chat = await chatModel.create({
+                    senderId: id,
+                    receiverId: userId,
+                    message: [
+                      {
                         senderId: id,
-                        receiverId: userId
-                    });
-                    if(chat)
-                    {
-                        chat.message.push(message);
-                        chat.timestamp = Date.now();
-                        await chat.save();
+                        receiverId: userId,
+                        text: message,
+                        timestamp: Date.now()
+                      }
+                    ]
+                  });
+                }
+              }
+            });
 
-                    }else{
-                        await chatModel.create({
-                            senderId:id,
-                            receiverId:userId,
-                            message:[message],
-                            roomId:id
-                        })
-                    }
-                    
-                  
-                 }
-             });
-            }
-     
-            }
-       }catch(err)
-       { 
-         socket.emit("offline","offline")
-       }
-       
-    })
-   
-    
-})
-
-
+            socket.on('load chat',async(uid)=>
+            {   
+                let loadchat = await chatModel.findOne({
+                    $or: [
+                      { senderId: id, receiverId: uid },
+                      { senderId: uid, receiverId: id }
+                    ]
+                  });
+                if(loadchat)
+                {
+                    socket.emit("message",loadchat.message)
+                }else{
+                    socket.emit("newchat","start chat")
+                }
+                
+            })
+          }
+        }
+      } catch (err) {
+        socket.emit("offline", "offline");
+      }
+    });
+  });
+  
 app.get("/logout",(req,res)=>
 {
     const token=req.cookies.token
