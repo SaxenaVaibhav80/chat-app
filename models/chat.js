@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 
 
 const chatModel= new mongoose.Schema({
-    senderId: String,       // One user in the chat
-    receiverId: String,     // The other user in the chat
+    senderId: String,       
+    receiverId: String,     
     message: [
       {
-        senderId: String,   // Who sent the message
-        receiverId: String, // Who received the message
-        text: String,       // The actual message content
+        senderId: String,   
+        receiverId: String, 
+        text: String,       
         timestamp: {
           type: Date,
           default: Date.now

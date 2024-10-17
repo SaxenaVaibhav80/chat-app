@@ -23,7 +23,11 @@
             <% if(loggedIn) {%>
                 <% user.forEach((data)=> { %>
                     <% if(data._id!=id){ %>
-                    <li  class="users" data-id="<%=data._id%>"><%=data.firstname+"  "+data.lastname%></li>
+                    <div notify-id="<%=data._id%>">
+                        <div  class="users" data-id="<%=data._id%>"><%=data.firstname+"  "+data.lastname%></div>
+
+                    </div>
+                    
                     <%}%>
                  <%})%>
             <%}%>

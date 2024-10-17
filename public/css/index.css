@@ -113,4 +113,19 @@
 }
 .users{
     cursor: pointer;
+    border: 1px solid black;
+    padding: 10px 20px 10px 20px;
+
+}
+
+#usernotify{
+    display: block;
+}
+
+.notification-bubble {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 10px;
 }

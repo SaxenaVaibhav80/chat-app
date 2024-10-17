@@ -114,7 +114,7 @@ app.post("/login",async(req,res)=>
         const passverify= await bcrypt.compare(password,user.password)
         if(passverify){
             const token = jwt.sign(
-                {id:user._id},
+                {id:user._id,name:user.firstname},
                 secret_key,
                 {
                  expiresIn:'24h'
@@ -180,7 +180,7 @@ app.get("/signup",(req,res)=>
 io.on("connection", (socket) => {
     socket.on("token", async (token) => {
       try {
-        if (token != "undefined") {
+        if (token !== "undefined") {
           const isvalid = jwt.verify(token, secret_key);
   
           if (isvalid) {
@@ -189,8 +189,14 @@ io.on("connection", (socket) => {
             socket.join(id);
             socket.emit("online", status);
   
+          
             socket.on("sendMessageToUser", async ({ userId, message }) => {
               if (userId && message) {
+
+               
+                socket.to(userId).emit("message", [message,id]);
+
+            
                 let chat = await chatModel.findOne({
                   $or: [
                     { senderId: id, receiverId: userId },
@@ -223,29 +229,28 @@ io.on("connection", (socket) => {
               }
             });
 
-            socket.on('load chat',async(uid)=>
-            {   
+            socket.on('load chat', async (uid) => {   
                 let loadchat = await chatModel.findOne({
                     $or: [
                       { senderId: id, receiverId: uid },
                       { senderId: uid, receiverId: id }
                     ]
-                  });
-                if(loadchat)
-                {
-                    socket.emit("message",loadchat.message)
-                }else{
-                    socket.emit("newchat","start chat")
+                });
+                if (loadchat) {
+                    socket.emit("Load msg", loadchat.message);
+                } else {
+                    socket.emit("Load msg", "start chat");
                 }
-                
-            })
+            });
+            
           }
         }
       } catch (err) {
         socket.emit("offline", "offline");
       }
     });
-  });
+});
+
   
 app.get("/logout",(req,res)=>
 {

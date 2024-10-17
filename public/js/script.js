@@ -1,13 +1,12 @@
 const socket = io();
 let extracted_token;
 
-
 fetch('/login/api', {
     method: 'POST',
 })
 .then(response => response.json()) 
 .then(data => {
-    localStorage.setItem("token", data.token);
+    localStorage.setItem("token", data.token); 
     extracted_token = localStorage.getItem('token');
     socket.emit("token", extracted_token);
 })
@@ -24,28 +23,18 @@ socket.on("offline", (data) => {
     console.log("user is " + data);
 });
 
-
-const userListItems = document.querySelectorAll('li[data-id]');
+const userListItems = document.querySelectorAll('div[data-id]');
 let selectedUserId = null;
-
-
-const updateSelectedUser = (userId) => {
-    selectedUserId = userId;
-}
-
-if (userListItems.length > 0) {
-    const firstUser = userListItems[0].getAttribute('data-id');
-    updateSelectedUser(firstUser);
-}
 
 
 userListItems.forEach(item => {
     item.addEventListener('click', () => {
-        const userId = item.getAttribute('data-id');
-        updateSelectedUser(userId);
-        socket.emit('load chat',userId)
+        selectedUserId = item.getAttribute('data-id'); 
+        socket.emit("load chat", selectedUserId);
+        console.log(`User selected: ${selectedUserId}`);
     });
 });
+
 
 const messageInput = document.getElementById('message-input');
 const sendMessageButton = document.getElementById('send-message-button');
@@ -55,30 +44,51 @@ sendMessageButton.addEventListener('click', () => {
 
     if (selectedUserId && message) {
         socket.emit('sendMessageToUser', { userId: selectedUserId, message });
-        
+   
+        const messageElement = document.createElement('p');
+        const messageBox = document.getElementById("msg-box");
+        messageElement.textContent = `You: ${message}`;  
+        messageBox.appendChild(messageElement); 
         messageInput.value = ''; 
     } else {
         alert('Please select a user and type a message');
     }
 });
 
-socket.on("message",(msgs)=>
-{
-    const msgBox = document.getElementById('msg-box');
-    msgBox.innerHTML = ''; // Clear previous messages
-    msgs.forEach(msg => {
-    const msgElement = document.createElement('div');
-    msgElement.textContent = `${msg.senderId === selectedUserId ? 'You' : 'User'}: ${msg.text}`;
-    msgBox.appendChild(msgElement);
-})
 
-})
+socket.on("message", (message) => {
+    const messageBox = document.getElementById("msg-box");
+    const messageElement = document.createElement('p');
+    messageElement.textContent = `User: ${message[0]}`;
+    if(selectedUserId===message[1])
+    {
+        messageBox.appendChild(messageElement);
 
-socket.on("newchat",(startchat)=>
-{
-    const msgBox = document.getElementById('msg-box');
-    const msgElement = document.createElement('div');
-    msgElement.textContent = startchat
-    msgBox.appendChild(msgElement);
+    }else {
+       
+       // notifictaion will be added soon
+    }
 
-})
+});
+
+socket.on("Load msg", (msgs) => {
+    const messageBox = document.getElementById("msg-box");
+    messageBox.innerHTML = '';
+
+    try {
+        if (Array.isArray(msgs) && msgs.length > 0) {
+            msgs.forEach(msg => {
+                const messageElement = document.createElement('div');
+               
+                messageElement.textContent = `${msg.receiverId === selectedUserId ? 'You' : 'User'}: ${msg.text}`;
+                messageBox.appendChild(messageElement);
+            });
+        } else {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = "Start chat";
+            messageBox.appendChild(messageElement);
+        }
+    } catch (err) {
+        console.error("Error loading chat", err);
+    }
+});
