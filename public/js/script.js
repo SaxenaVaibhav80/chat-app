@@ -24,8 +24,10 @@ socket.on("offline", (data) => {
 });
 
 const userListItems = document.querySelectorAll('div[data-id]');
-let selectedUserId = null;
-
+const defaultuser= document.querySelectorAll('div[data-id]')[0];
+let selectedUserId =defaultuser.getAttribute('data-id')
+console.log(selectedUserId)
+socket.emit("load chat", selectedUserId);
 
 userListItems.forEach(item => {
     item.addEventListener('click', () => {
@@ -72,6 +74,7 @@ socket.on("message", (message) => {
 });
 
 socket.on("Load msg", (msgs) => {
+    console.log("hii")
     const messageBox = document.getElementById("msg-box");
     messageBox.innerHTML = '';
 
@@ -80,7 +83,7 @@ socket.on("Load msg", (msgs) => {
             msgs.forEach(msg => {
                 const messageElement = document.createElement('div');
                
-                messageElement.textContent = `${msg.receiverId === selectedUserId ? 'You' : 'User'}: ${msg.text}`;
+                messageElement.textContent = `${msg.senderId === selectedUserId ? 'User' : 'You'}: ${msg.text}`;
                 messageBox.appendChild(messageElement);
             });
         } else {

@@ -9,40 +9,43 @@
 </head>
 <body>
     <nav>
-        <% if(loggedIn) {%>
-            <a href="/logout">logout</a>
-        <%}else{%>
-        <a href="/login">login</a>
-        <a href="/signup">signup</a>
+       <%if(!loggedIn){%>
+            <a href="/login">login</a>
+            <a href="/signup">signup</a>
         <%}%>
-        
     </nav>
-    <h1 id="head">chat app</h1>
+    
+    <% if(loggedIn) {%>
+    <div id="head"><p class="head-dis">chat app</p></div>
     <div class="msg-area">
-        <div>
-            <% if(loggedIn) {%>
-                <% user.forEach((data)=> { %>
-                    <% if(data._id!=id){ %>
-                    <div notify-id="<%=data._id%>">
-                        <div  class="users" data-id="<%=data._id%>"><%=data.firstname+"  "+data.lastname%></div>
-
-                    </div>
-                    
-                    <%}%>
-                 <%})%>
-            <%}%>
-            
+        <div class="logout-area">
+            <a href="/logout" class="logout-link"><img src="/img/exit.png" class="logout-img"></a>
         </div>
+       
+        <div class="available-users">
+                <% user.forEach((data)=> { %>
+                    <% if(data._id!=id){ %>     
+                        <div  class="users" data-id="<%=data._id%>">
+                            <div class="profile"><img src="/img/user.png" class="user-profile-pic"></div>
+                            <%=data.firstname+"  "+data.lastname%>
+                        </div>                    
+                    <%}%>
+                 <%})%>  
+        </div>
+       
         <div>
-            <% if(loggedIn) {%>
             <div id="msg-box">
     
+
+                
             </div>
-            <input type="text" id="message-input" placeholder="Type your message here" />
-            <button id="send-message-button">Send Message</button>
-            <%}%>
+            <div class="send-msg">
+                <input type="text" id="message-input" placeholder="Type your message here" />
+                <img src="/img/send2.png" id="send-message-button" alt="send">
+            </div>
         </div>
     </div>
+    <%}%>
     
 
 
