@@ -47,8 +47,9 @@ sendMessageButton.addEventListener('click', () => {
     if (selectedUserId && message) {
         socket.emit('sendMessageToUser', { userId: selectedUserId, message });
    
-        const messageElement = document.createElement('p');
+        const messageElement = document.createElement('div');
         const messageBox = document.getElementById("msg-box");
+        messageElement.classList.add("yourtext")
         messageElement.textContent = `You: ${message}`;  
         messageBox.appendChild(messageElement); 
         messageInput.value = ''; 
@@ -60,7 +61,8 @@ sendMessageButton.addEventListener('click', () => {
 
 socket.on("message", (message) => {
     const messageBox = document.getElementById("msg-box");
-    const messageElement = document.createElement('p');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add("usertext")
     messageElement.textContent = `User: ${message[0]}`;
     if(selectedUserId===message[1])
     {
@@ -82,12 +84,19 @@ socket.on("Load msg", (msgs) => {
         if (Array.isArray(msgs) && msgs.length > 0) {
             msgs.forEach(msg => {
                 const messageElement = document.createElement('div');
-               
-                messageElement.textContent = `${msg.senderId === selectedUserId ? 'User' : 'You'}: ${msg.text}`;
+                if(msg.senderId===selectedUserId)
+                {
+                    messageElement.textContent = `user : ${msg.text}`
+                    messageElement.classList.add("usertext")
+                }else{
+                    messageElement.textContent =  `You: ${msg.text}`
+                    messageElement.classList.add("yourtext")
+                }
                 messageBox.appendChild(messageElement);
             });
         } else {
             const messageElement = document.createElement('div');
+            messageElement.classList.add("msg-design")
             messageElement.textContent = "Start chat";
             messageBox.appendChild(messageElement);
         }
