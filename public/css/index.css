@@ -158,13 +158,30 @@ body{
     overflow-y: auto;
 }
 
-#msg-box > div:first-child {
+#msg-box > :first-child {
     margin-top: 30px;
 }
 
-#msg-box > div:last-child {
+#msg-box > :last-child {
     margin-bottom: 15px;
 }
+
+/* note--->The > symbol in CSS is a child combinator, and it is used to select direct children of an element. 
+
+<div id="msg-box">
+  <div>Direct child 1</div>
+  <div>Direct child 2</div>
+  <div>
+    <div>Nested child</div>
+  </div>
+</div>
+#msg-box > div would select only the first three div elements (Direct child 1, Direct child 2, and the third direct child).
+
+#msg-box div would select all div elements, including the nested one (Nested child).
+
+
+
+*/
 .logout-area{
     background-color:  rgb(32, 44, 51);
     display: flex;
@@ -255,3 +272,10 @@ body{
     background: #555; 
 
   }
+ .startchat{
+    color: white;
+    margin-left: 219px;
+    margin-top: 430px;
+    opacity: 0.5;
+    font-size: 74px;
+ }

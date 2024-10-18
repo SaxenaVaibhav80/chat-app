@@ -52,6 +52,11 @@ sendMessageButton.addEventListener('click', () => {
         messageElement.classList.add("yourtext")
         messageElement.textContent = `You: ${message}`;  
         messageBox.appendChild(messageElement); 
+        const ele= document.getElementsByClassName("startchat")[0]
+        if(ele)
+        {
+            ele.remove()
+        }
         messageInput.value = ''; 
     } else {
         alert('Please select a user and type a message');
@@ -96,8 +101,8 @@ socket.on("Load msg", (msgs) => {
             });
         } else {
             const messageElement = document.createElement('div');
-            messageElement.classList.add("msg-design")
-            messageElement.textContent = "Start chat";
+            messageElement.classList.add("startchat")
+            messageElement.textContent = "Start Conversations";
             messageBox.appendChild(messageElement);
         }
     } catch (err) {
