@@ -13,6 +13,7 @@ const chatModel = require("./models/chat")
 const server = http.createServer(app)
 const socketio=require('socket.io');
 const io=socketio(server)
+const port = process.env.PORT
 const bcrypt= require('bcrypt')
 const ejs= require("ejs")
 const db = require("./config/config")
@@ -263,5 +264,5 @@ app.get("/logout",(req,res)=>
 })
 
 
-server.listen(3000)
+server.listen({port})
 
