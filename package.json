@@ -4,12 +4,7 @@
   "description": "dynamin chatapp",
   "main": "index.js",
   "scripts": {
-<<<<<<< HEAD
-    "start": "node app.js",
-    "dev": "nodemon app.js"
-=======
-    "start": "node index.js"
->>>>>>> 3fae3bbbff3f7092a57e317a8bee4a30bcd66702
+  "start":"node index.js"
   },
   "repository": {
     "type": "git",
