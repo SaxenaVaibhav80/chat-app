@@ -264,5 +264,5 @@ app.get("/logout",(req,res)=>
 })
 
 
-server.listen({port})
+server.listen(port)
 
